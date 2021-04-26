@@ -29,6 +29,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,11 +38,12 @@ import java.util.List;
 import java.util.Map;
 
 public class WordCloud {
-    private Map<String, Integer> wordMap = new HashMap<>();
+    private Map<String, Pair<Integer, Integer>> wordMap = new HashMap<>();
     private int dimenWidth = 480;
     private int dimenHeight = 640;
     private int defaultWordColor = Color.BLACK;
     private int defaultBackgroundColor = Color.WHITE;
+    private List<Integer> wordColors  = null;
     private int calculatedHeight = 0;
     private int maxFontSize = 40;
     private int minFontSize = 10;
@@ -63,19 +65,17 @@ public class WordCloud {
     }
 
     public WordCloud(Map<String, Integer> wordMap, int dimenWidth, int dimenHeight) {
-        this.wordMap.putAll(wordMap);
         this.dimenWidth = dimenWidth;
         this.dimenHeight = dimenHeight;
     }
 
-    public WordCloud(Map<String, Integer> wordMap, int dimenWidth, int dimenHeight,
-                     int defaultWordColor, int defaultBackgroundColor) {
+    public WordCloud(Map<String, Pair<Integer, Integer>> wordMap, int dimenWidth, int dimenHeight, int defaultBackgroundColor) {
         this.wordMap.putAll(wordMap);
         this.dimenWidth = dimenWidth;
         this.dimenHeight = dimenHeight;
-        this.defaultWordColor = defaultWordColor;
         this.defaultBackgroundColor = defaultBackgroundColor;
     }
+
 
     /*
     -1: Failure
@@ -138,34 +138,35 @@ public class WordCloud {
             return null;
         }
 
+        List<Integer> countList = new ArrayList<Integer>();
+        for (Pair<Integer, Integer> value: wordMap.values()) {
+            countList.add(value.first);
+        }
         List<Word> finalWordList = new ArrayList<>();
-
-        List<Integer> countList = new ArrayList<>(wordMap.values());
         Collections.sort(countList, Collections.reverseOrder());
         int largestWordCnt = countList.get(0);
-
-        for (Map.Entry<String, Integer> entry : wordMap.entrySet()) {
-            float calculatedTextSize = getTextSize(entry.getValue(),largestWordCnt,
+        for (Map.Entry<String, Pair<Integer, Integer>> entry : wordMap.entrySet()) {
+            float calculatedTextSize = getTextSize(entry.getValue().first,largestWordCnt,
                     this.maxFontSize, this.minFontSize);
 
             if (wordColorOpacityAuto) {
-                int calculatedAlphaVal = getTextColorAlpha(entry.getValue(), largestWordCnt,
+                int calculatedAlphaVal = getTextColorAlpha(entry.getValue().first, largestWordCnt,
                         this.maxColorAlphaValue, this.minColorAlphaValue);
 
                 if (customTypeFace != null) {
-                    finalWordList.add(new Word(entry.getKey(), entry.getValue(), calculatedTextSize, customTypeFace,
-                            defaultWordColor, calculatedAlphaVal));
+                    finalWordList.add(new Word(entry.getKey(), entry.getValue().first, calculatedTextSize, customTypeFace,
+                            entry.getValue().second, calculatedAlphaVal));
                 } else {
-                    finalWordList.add(new Word(entry.getKey(), entry.getValue(), calculatedTextSize,
-                            defaultWordColor, calculatedAlphaVal));
+                    finalWordList.add(new Word(entry.getKey(), entry.getValue().first, calculatedTextSize,
+                            entry.getValue().second, calculatedAlphaVal));
                 }
             } else {
                 if (customTypeFace != null) {
-                    finalWordList.add(new Word(entry.getKey(), entry.getValue(), calculatedTextSize, customTypeFace,
-                            defaultWordColor));
+                    finalWordList.add(new Word(entry.getKey(), entry.getValue().first, calculatedTextSize, customTypeFace,
+                            entry.getValue().second));
                 } else {
-                    finalWordList.add(new Word(entry.getKey(), entry.getValue(), calculatedTextSize,
-                            defaultWordColor));
+                    finalWordList.add(new Word(entry.getKey(), entry.getValue().first, calculatedTextSize,
+                            entry.getValue().second));
                 }
             }
         }
