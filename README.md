@@ -47,14 +47,15 @@ Example to generate a Word Cloud on top of an image.
 ```java
 Map<String, Integer> wordMap = new HashMap<>();
 
-wordMap.put("oguzhan", 2); // "oguzhan" -> word, "2" -> word count
-wordMap.put("mordred", 2);
-wordMap.put("is", 4);
-wordMap.put("on",2);
-wordMap.put("the", 3);
-wordMap.put("salda lake",5);
 
-WordCloud wd = new WordCloud(wordMap, 250, 250,Color.BLACK,Color.WHITE);
+Map<String, Pair<Integer, Integer>> nMap = new HashMap<>();
+nMap.put("oguzhan", Pair.create(2 , Color.BLACK));
+nMap.put("is", Pair.create(2 , Color.WHITE));
+nMap.put("on", Pair.create(2 , Color.RED));
+nMap.put("the", Pair.create(2 , Color.GREEN));
+
+WordCloud wd = new WordCloud(nMap, 250, 250,Color.WHITE);
+
 wd.setWordColorOpacityAuto(true);
 
 Bitmap generatedWordCloudBmp = wd.generate();
